@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.14.0)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
-project(timsort VERSION 3.0.1 LANGUAGES CXX)
+project(ConSort VERSION 0.0.1 LANGUAGES CXX)
 
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
@@ -11,61 +11,61 @@ include(GNUInstallDirs)
 option(BUILD_TESTING "Build the tests" ON)
 option(BUILD_BENCHMARKS "Build the benchmarks" OFF)
 
-# Create gfx::timsort as an interface library
-add_library(timsort INTERFACE)
+# Create consort::ConSort as an interface library
+add_library(ConSort INTERFACE)
 
-target_include_directories(timsort INTERFACE
+target_include_directories(ConSort INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-target_compile_features(timsort INTERFACE cxx_std_20)
+target_compile_features(ConSort INTERFACE cxx_std_20)
 
-add_library(gfx::timsort ALIAS timsort)
+add_library(consort::ConSort ALIAS ConSort)
 
 # Install targets and files
 install(
-    TARGETS timsort
-    EXPORT gfx-timsort-targets
+    TARGETS ConSort
+    EXPORT consort-targets
     DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
 install(
-    EXPORT gfx-timsort-targets
-    NAMESPACE gfx::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/gfx
+    EXPORT consort-targets
+    NAMESPACE consort::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/consort
 )
 
 install(
-    FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/gfx/timsort.hpp
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/gfx
+    FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/consort/consort.hpp
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/consort
 )
 
 configure_package_config_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/gfx-timsort-config.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/cmake/gfx-timsort-config.cmake
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/consort-config.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/cmake/consort-config.cmake
     INSTALL_DESTINATION
-        ${CMAKE_INSTALL_LIBDIR}/cmake/gfx
+        ${CMAKE_INSTALL_LIBDIR}/cmake/consort
 )
 
 write_basic_package_version_file(
-    ${CMAKE_BINARY_DIR}/cmake/gfx-timsort-config-version.cmake
+    ${CMAKE_BINARY_DIR}/cmake/consort-config-version.cmake
     COMPATIBILITY SameMajorVersion
     ARCH_INDEPENDENT
 )
 
 install(
     FILES
-        ${CMAKE_CURRENT_BINARY_DIR}/cmake/gfx-timsort-config.cmake
-        ${CMAKE_CURRENT_BINARY_DIR}/cmake/gfx-timsort-config-version.cmake
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/gfx
+        ${CMAKE_CURRENT_BINARY_DIR}/cmake/consort-config.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/cmake/consort-config-version.cmake
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/consort
 )
 
 # Export target so that it can be used in subdirectories
 export(
-    EXPORT gfx-timsort-targets
-    FILE ${CMAKE_CURRENT_BINARY_DIR}/cmake/gfx-timsort-targets.cmake
-    NAMESPACE gfx::
+    EXPORT consort-targets
+    FILE ${CMAKE_CURRENT_BINARY_DIR}/cmake/consort-targets.cmake
+    NAMESPACE consort::
 )
 
 # Build tests and/or benchmarks if this is the main project
