@@ -99,19 +99,49 @@ class TimSort {
     std::vector<run<RandomAccessIterator>> pending_;
 
     template <typename Compare, typename Projection>
-    static void binarySort(iter_t const lo, iter_t const hi, iter_t start,
-                           Compare comp, Projection proj) {
+static void binarySort(iter_t const lo, iter_t const hi, iter_t start,
+                       Compare comp, Projection proj) {
+    GFX_TIMSORT_ASSERT(lo <= start);
+    GFX_TIMSORT_ASSERT(start <= hi);
+    if (start == lo) {
+        ++start;
+    }
+
+    for (; start < hi; ++start) {
         GFX_TIMSORT_ASSERT(lo <= start);
-        GFX_TIMSORT_ASSERT(start <= hi);
-        if (start == lo) {
-            ++start;
+
+        // Cache the current element to insert
+        auto key = std::ranges::iter_move(start);
+        auto const& keyProj = std::invoke(proj, key);
+
+        // Fast path: already in place (common in nearly-sorted data)
+        if (!std::invoke(comp, keyProj, std::invoke(proj, *std::ranges::prev(start)))) {
+            continue;
         }
-        for (; start < hi; ++start) {
-            GFX_TIMSORT_ASSERT(lo <= start);
-            auto pos = std::ranges::upper_bound(lo, start, std::invoke(proj, *start), comp, proj);
-            rotateRight(pos, std::ranges::next(start));
+
+        // Fast path for trivially copyable types: use memmove
+        if constexpr (std::is_trivially_copyable_v<std::iter_value_t<iter_t>>) {
+            // Binary search for insertion point
+            auto pos = std::ranges::upper_bound(lo, start, keyProj, comp, proj);
+            // memmove is SIMD-optimized on ARM, way faster than rotate
+            std::memmove(std::addressof(*(pos + 1)),
+                         std::addressof(*pos),
+                         (start - pos) * sizeof(std::iter_value_t<iter_t>));
+            *pos = std::move(key);
+        } else {
+            // Non-trivial types: linear scan backwards (usually faster
+            // than binary search since insertion point is nearby)
+            auto pos = start;
+            do {
+                --pos;
+            } while (pos > lo && std::invoke(comp, keyProj, std::invoke(proj, *std::ranges::prev(pos))));
+
+            // Shift elements right using move semantics
+            std::ranges::move_backward(pos, start, std::ranges::next(start));
+            *pos = std::move(key);
         }
     }
+}
 
     template <typename Compare, typename Projection>
     static diff_t countRunAndMakeAscending(iter_t const lo, iter_t const hi,
