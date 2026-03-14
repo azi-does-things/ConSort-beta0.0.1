@@ -37,8 +37,8 @@ install(
 )
 
 install(
-    FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/consort/consort.hpp
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/consort
+    FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/gfx/consort.hpp
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/gfx
 )
 
 configure_package_config_file(
